@@ -1,0 +1,36 @@
+# Bento Configuration for Cloudflare Containers
+# This config sets up a simple HTTP server that receives JSON, transforms it, and returns it
+
+http:
+  address: "0.0.0.0:8080"
+  enabled: true
+  root_path: /bentows
+  debug_endpoints: true
+
+input:
+  http_server:
+    path: /process
+    timeout: 5s
+    allowed_verbs: [ POST, GET ]
+
+pipeline:
+  processors:
+    - bloblang: |
+        root = this
+        root.processed_by = "bento"
+        root.timestamp = now().ts_unix()
+        root.message = "Successfully processed by Bento on Cloudflare!"
+        root.original_data = this
+
+output:
+  # Echo back the processed data
+  sync_response: {}
+
+logger:
+  level: INFO
+  format: json
+
+metrics:
+  prometheus:
+    enabled: true
+  mapping: ""

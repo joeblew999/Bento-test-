@@ -1,0 +1,50 @@
+# Cloudflare Workers + Containers Configuration
+# Documentation: https://developers.cloudflare.com/containers/
+
+name = "bento-cloudflare"
+main = "src/worker.js"
+compatibility_date = "2025-10-30"
+
+# Container configuration
+# NOTE: Containers are currently in beta and require a paid plan
+[[containers]]
+# Binding name - accessible in worker as env.BENTO
+binding = "BENTO"
+
+# Docker image to use
+# Option 1: Use official Bento image (recommended)
+image = "ghcr.io/warpstreamlabs/bento:latest"
+
+# Option 2: Use custom built image (uncomment after building)
+# image = "bento-cloudflare:latest"
+
+# Port that Bento listens on (must match bento.yaml http.address port)
+default_port = 8080
+
+# How long the container stays awake after last request (in seconds)
+# Default: 120 seconds
+# Set higher if you want to avoid cold starts
+sleep_after = 300
+
+# Container size (dev, basic, or standard)
+# dev: 256 MiB RAM, 1/16 vCPU
+# basic: 1 GiB RAM, 1/4 vCPU  (recommended for Bento)
+# standard: 4 GiB RAM, 1/2 vCPU
+size = "basic"
+
+# Mount the Bento config file into the container
+[[containers.files]]
+# Local file path
+path = "./bento.yaml"
+# Path inside container
+mount_path = "/config.yaml"
+
+# Environment variables for the container
+[containers.env]
+# BENTO_CONFIG_PATH = "/config.yaml"
+# Add any other environment variables Bento needs
+
+# Container startup command (override if needed)
+# Default for official image is already "bento -c /config.yaml"
+# Uncomment to customize:
+# cmd = ["bento", "-c", "/config.yaml", "--log.level", "INFO"]
